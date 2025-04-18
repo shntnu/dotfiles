@@ -1,0 +1,128 @@
+#!/usr/bin/env zsh
+
+# Create a new directory and enter it
+function mkd() {
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: mkd <directory_name>"
+    return 1
+  fi
+  mkdir -p "$@" && cd "$_"
+}
+
+# Create a .tar.gz archive, using `zopfli`, `pigz` or `gzip` for compression
+function targz() {
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: targz <file/directory>"
+    return 1
+  fi
+
+  local tmpFile="${@%/}.tar"
+  tar -cvf "${tmpFile}" --exclude=".DS_Store" "${@}" || return 1
+
+  local size=$(stat -f"%z" "${tmpFile}" 2>/dev/null || stat -c"%s" "${tmpFile}" 2>/dev/null)
+
+  local cmd="gzip"
+  if ((size < 52428800)) && hash zopfli 2>/dev/null; then
+    # the .tar file is smaller than 50 MB and Zopfli is available; use it
+    cmd="zopfli"
+  elif hash pigz 2>/dev/null; then
+    cmd="pigz"
+  fi
+
+  echo "Compressing .tar ($((size / 1000)) kB) using \`${cmd}\`…"
+  "${cmd}" -v "${tmpFile}" || return 1
+  [ -f "${tmpFile}" ] && rm "${tmpFile}"
+
+  local zippedSize=$(stat -f"%z" "${tmpFile}.gz" 2>/dev/null || stat -c"%s" "${tmpFile}.gz" 2>/dev/null)
+  echo "${tmpFile}.gz ($((zippedSize / 1000)) kB) created successfully."
+}
+
+# Determine size of a file or total size of a directory
+function fs() {
+  if ! command -v du &>/dev/null; then
+    echo "Error: 'du' command not found"
+    return 1
+  fi
+
+  if du -b /dev/null >/dev/null 2>&1; then
+    local arg=-sbh
+  else
+    local arg=-sh
+  fi
+  if [[ -n "$@" ]]; then
+    if [[ -e "$@" ]]; then
+      du $arg -- "$@"
+    else
+      echo "Error: '$@' does not exist"
+      return 1
+    fi
+  else
+    du $arg .[^.]* ./* 2>/dev/null || echo "No files found"
+  fi
+}
+
+# Use Git's colored diff when available
+if hash git &>/dev/null; then
+  function gdiff() {
+    git diff --no-index --color-words "$@"
+  }
+fi
+
+# Compare original and gzipped file size
+function gz() {
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: gz <file>"
+    return 1
+  fi
+
+  if [[ ! -f "$1" ]]; then
+    echo "Error: File '$1' not found"
+    return 1
+  fi
+
+  if ! command -v bc &>/dev/null; then
+    echo "Warning: 'bc' not found, ratio calculation will be omitted"
+    local origsize=$(wc -c <"$1")
+    local gzipsize=$(gzip -c "$1" | wc -c)
+    printf "orig: %d bytes\n" "$origsize"
+    printf "gzip: %d bytes\n" "$gzipsize"
+    return 0
+  fi
+
+  local origsize=$(wc -c <"$1")
+  local gzipsize=$(gzip -c "$1" | wc -c)
+  local ratio=$(echo "$gzipsize * 100 / $origsize" | bc -l)
+  printf "orig: %d bytes\n" "$origsize"
+  printf "gzip: %d bytes (%2.2f%%)\n" "$gzipsize" "$ratio"
+}
+
+# `tre` is a shorthand for `tree` with hidden files and color enabled, ignoring
+# the `.git` directory, listing directories first. The output gets piped into
+# `less` with options to preserve color and line numbers, unless the output is
+# small enough for one screen.
+function tre() {
+  if ! command -v tree &>/dev/null; then
+    echo "Error: 'tree' command not found"
+    echo "Install with: brew install tree"
+    return 1
+  fi
+
+  if ! command -v less &>/dev/null; then
+    tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@"
+    return
+  fi
+
+  tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX
+}
+
+# List all available functions with basic descriptions
+function fhelp() {
+  echo "Available functions:"
+  echo "  mkd    - Create a new directory and enter it"
+  echo "  targz  - Create a .tar.gz archive with optimized compression"
+  echo "  fs     - Determine size of a file or total size of a directory"
+  echo "  gdiff   - Use Git's colored diff (if Git is available)"
+  echo "  gz     - Compare original and gzipped file size"
+  echo "  tre    - Enhanced tree command with improved output"
+  echo "  fhelp  - Show this help message"
+}

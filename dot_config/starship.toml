@@ -1,0 +1,62 @@
+# Starship Configuration
+# https://starship.rs/config/
+
+# Don't print a new line at the start of the prompt
+add_newline = true
+
+# Replace the "❯" symbol with "$" in the prompt
+[character]
+success_symbol = "[\\$](white)"
+error_symbol = "[\\$](red)"
+
+# Disable the package module, hiding it from the prompt completely
+[package]
+disabled = true
+
+# Show command duration if it takes longer than 2000 milliseconds
+[cmd_duration]
+min_time = 2000
+format = "took [$duration](yellow) "
+
+# Configure Git settings
+[git_branch]
+format = "on [$symbol$branch]($style) "
+style = "purple"
+
+[git_status]
+format = '[\[$all_status$ahead_behind\]]($style) '
+style = "blue"
+
+# Make prompt similar to your original
+[username]
+style_user = "orange"
+style_root = "red"
+format = "[$user]($style) "
+show_always = true
+
+[hostname]
+ssh_only = false
+format = "at [$hostname](yellow) "
+
+[directory]
+style = "green"
+format = "in [$path]($style) "
+
+# Keep prompt fairly minimal
+[aws]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[python]
+disabled = false
+
+[ruby]
+disabled = true
+
+[rust]
+disabled = true

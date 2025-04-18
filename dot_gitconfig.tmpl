@@ -1,0 +1,80 @@
+[user]
+	name = {{ .name }}
+	email = {{ .email }}
+	{{- if .signingkey }}
+	signingkey = {{ .signingkey }}
+	{{- end }}
+
+[alias]
+	# Essential everyday aliases
+	l = log --pretty=oneline -n 20 --graph --abbrev-commit
+	s = status -s
+	d = !"git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
+	p = pull --recurse-submodules
+	
+	# Helper aliases
+	aliases = config --get-regexp alias
+	amend = commit --amend --reuse-message=HEAD
+	reb = "!r() { git rebase -i HEAD~$1; }; r"
+	whoami = config user.email
+
+	# Information commands
+	branches = branch --all
+	remotes = remote --verbose
+	
+	# Cleanup commands
+	# Remove branches that have already been merged with main
+	dm = "!git branch --merged | grep -v '\\*' | xargs -n 1 git branch -d"
+
+[apply]
+	whitespace = fix
+
+[branch]
+	sort = -committerdate
+
+[core]
+	excludesfile = ~/.gitignore
+	attributesfile = ~/.gitattributes
+	whitespace = space-before-tab,-indent-with-non-tab,trailing-space
+	
+	# Prevent showing files whose names contain non-ASCII symbols as unversioned
+	precomposeunicode = false
+	
+	# Speed up commands involving untracked files such as `git status`
+	untrackedCache = true
+
+[color]
+	ui = auto
+
+[commit]
+	{{- if .signingkey }}
+	gpgsign = true
+	{{- else }}
+	# gpgsign = true # Uncomment if you set up GPG signing
+	{{- end }}
+
+[diff]
+	renames = copies
+
+[diff "bin"]
+	textconv = hexdump -v -C
+
+# Keep if you use Git LFS, otherwise can be removed
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+	
+[help]
+	# Modern value uses deciseconds (1/10th sec) instead of boolean
+	autocorrect = 10
+
+[merge]
+	log = true
+
+[push]
+	followTags = true
+
+[init]
+	defaultBranch = main

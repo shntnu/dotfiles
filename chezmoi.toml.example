@@ -1,0 +1,8 @@
+# Example configuration file for chezmoi
+# Copy this to ~/.config/chezmoi/chezmoi.toml and fill in your actual values
+
+[data]
+    # Git user information
+    name = "Your Name"
+    email = "your.email@example.com"
+    # signingkey = "YOUR_GPG_KEY_ID"  # Uncomment and add your GPG key if using signed commits

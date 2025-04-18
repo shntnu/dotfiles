@@ -1,0 +1,43 @@
+#!/usr/bin/env zsh
+
+# ----------------------------------------
+# Zsh Key Bindings
+# ----------------------------------------
+
+# Use emacs key bindings (more common/familiar than vi mode)
+bindkey -e
+
+# Common navigation key bindings
+bindkey '^[[1;5D' backward-word    # Ctrl+Left - move backward one word
+bindkey '^[[1;5C' forward-word     # Ctrl+Right - move forward one word
+bindkey '^[[1;3D' backward-word    # Alt+Left - move backward one word
+bindkey '^[[1;3C' forward-word     # Alt+Right - move forward one word
+
+# Home and End keys
+bindkey '^[[H' beginning-of-line   # Home - move to beginning of line
+bindkey '^[[F' end-of-line         # End - move to end of line
+bindkey '^[[1~' beginning-of-line  # Home - alternate code
+bindkey '^[[4~' end-of-line        # End - alternate code
+
+# Delete keys
+bindkey '^[[3~' delete-char         # Delete - delete character under cursor
+bindkey '^[[3;3~' kill-word         # Alt+Delete - delete word forward
+bindkey '^H' backward-delete-char   # Backspace - delete character behind cursor
+bindkey '^W' backward-kill-word     # Ctrl+W - delete word backward
+
+# Multiple bindings for Alt+Backspace (covers different terminal implementations)
+bindkey '^[^H' backward-kill-word   # Alt+Backspace - variation 1
+bindkey '^[^?' backward-kill-word   # Alt+Backspace - variation 2
+bindkey '\e\C-?' backward-kill-word # Alt+Backspace - variation 3
+bindkey '\e^H' backward-kill-word   # Alt+Backspace - variation 4
+
+# History search - up/down arrow searches based on current input
+# These will be overridden by Atuin if it's active
+bindkey '^[[A' history-beginning-search-backward  # Up
+bindkey '^[[B' history-beginning-search-forward   # Down
+
+# Ctrl+Space to accept autosuggestions if you use them
+bindkey '^ ' autosuggest-accept
+
+# Edit command in editor
+bindkey '^X^E' edit-command-line
