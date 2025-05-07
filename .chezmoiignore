@@ -4,3 +4,5 @@
 */*.txt # ignore *.txt in subdirectories of the target directory
         # but not in subdirectories of subdirectories;
         # so a/b/c.txt would *not* be ignored
+
+chezmoi.toml.example
