@@ -14,6 +14,12 @@ path=(
 export PATH
 
 # ----------------------------------------
+# Editor Configuration
+# ----------------------------------------
+export EDITOR="emacs"
+export VISUAL="emacs"
+
+# ----------------------------------------
 # Essential Zsh Options
 # ----------------------------------------
 # Word characters (affects word navigation and deletion)
